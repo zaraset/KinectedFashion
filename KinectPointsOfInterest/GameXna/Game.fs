@@ -43,8 +43,8 @@
             //let login = new RecentUsersScreen(this, changeScreenEvent, kinectUI)
             //let login = new KinectTextInputScreen(this, new MenuItems.TextBox(this, false, "UI/BlueButton600x150", "", Vector2.Zero, kinectUI) , changeScreenEvent, new RecentUsersScreen(this, changeScreenEvent, kinectUI), kinectUI)
             //do login.KinectUI <- kinectUI //pass the kinectUI object to the first screen
-            let login = new StoreScreen(this, changeScreenEvent, "", kinectUI)
-            //let login = new VisualisationScreen(this, "male", 0, 0, 0,0,changeScreenEvent, kinectUI)
+            //let login = new StoreScreen(this, changeScreenEvent, "", kinectUI)
+            let login = new VisualisationScreen(this, "male", 0, 0, 0,0,changeScreenEvent, kinectUI)
 
             let loadNewScreen (args:ChangeScreenEventArgs)= 
                 args.OldScreen.DestroyScene()

@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<XnaContent xmlns:Pipeline="Microsoft.Xna.Framework.Content.Pipeline">
+<XnaContent xmlns:Pipeline="Microsoft.Xna.Framework.Content.Pipeline" xmlns:Framework="Microsoft.Xna.Framework" xmlns:Processors="Microsoft.Xna.Framework.Content.Pipeline.Processors">
   <Asset Type="Pipeline:BuildItemCollection">
     <Item>
       <Source>Sprite.png</Source>
@@ -504,6 +504,43 @@
       <Options>None</Options>
       <Output>C:\Users\Ewen\Documents\Visual Studio 2010\Projects\KinectPointsOfInterest\KinectPointsOfInterest\GameXna\bin\Debug\XnaGameContent\UI\NotFullScreenButton100x100.xnb</Output>
       <Time>2012-04-04T13:44:22.2770581+01:00</Time>
+    </Item>
+    <Item>
+      <Source>VisualisationModels\manrigged.FBX</Source>
+      <Importer>FbxImporter</Importer>
+      <Options>IntermediateFile, DontCacheImportedData</Options>
+      <Output>obj\x86\Debug\VisualisationModels\manrigged_0.xml</Output>
+      <Time>2012-04-05T15:05:22.4657287+01:00</Time>
+    </Item>
+    <Item>
+      <Source>obj\x86\Debug\FBX\D8823B45\manrigged.fbm\texture.png</Source>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <Parameters>
+        <Data Key="ColorKeyColor" Type="Framework:Color">FFFF00FF</Data>
+        <Data Key="ColorKeyEnabled" Type="bool">true</Data>
+        <Data Key="TextureFormat" Type="Processors:TextureProcessorOutputFormat">DxtCompressed</Data>
+        <Data Key="GenerateMipmaps" Type="bool">true</Data>
+        <Data Key="ResizeToPowerOfTwo" Type="bool">false</Data>
+        <Data Key="PremultiplyAlpha" Type="bool">true</Data>
+      </Parameters>
+      <Options>None</Options>
+      <Output>C:\Users\Ewen\Documents\Visual Studio 2010\Projects\KinectPointsOfInterest\KinectPointsOfInterest\GameXna\bin\Debug\XnaGameContent\FBX\D8823B45\manrigged.fbm\texture_0.xnb</Output>
+      <Time>2012-04-05T15:05:24.253831+01:00</Time>
+    </Item>
+    <Item>
+      <Source>VisualisationModels\manrigged.FBX</Source>
+      <Name>VisualisationModels\manrigged</Name>
+      <Importer>FbxImporter</Importer>
+      <Processor>SkinnedModelProcessor</Processor>
+      <Options>None</Options>
+      <Output>C:\Users\Ewen\Documents\Visual Studio 2010\Projects\KinectPointsOfInterest\KinectPointsOfInterest\GameXna\bin\Debug\XnaGameContent\VisualisationModels\manrigged.xnb</Output>
+      <Time>2012-04-05T15:05:22.4657287+01:00</Time>
+      <Dependency>
+        <Key>obj\x86\Debug\VisualisationModels\manrigged_0.xml</Key>
+        <Value>2012-04-05T15:05:25.6989137+01:00</Value>
+      </Dependency>
+      <Request>C:\Users\Ewen\Documents\Visual Studio 2010\Projects\KinectPointsOfInterest\KinectPointsOfInterest\GameXna\bin\Debug\XnaGameContent\FBX\D8823B45\manrigged.fbm\texture_0.xnb</Request>
     </Item>
     <BuildSuccessful>true</BuildSuccessful>
     <Settings>

@@ -469,9 +469,10 @@
             let searchBox = new TextBox(game, false, "UI/BlueButton600x150", "", new Vector2(62.0f, 30.0f), kinect)
             let searchButton = new TextButton(game, "UI/BlueButton300x150", "", "Search!", new Vector2(662.0f, 30.0f), kinect)
             
+            let noItemsLabel = new Label(game, (if searchTerm = "" then "The store has no items for sale" else "No items found for your search"), new Vector2(200.0f, 200.0f))
 
             let searchClickHandler args= 
-                e.Trigger(new ChangeScreenEventArgs(this, new StoreScreen(this.Game, event, ("WHERE garment_name LIKE '%"+searchBox.Text+"%'"), kinect)))
+                e.Trigger(new ChangeScreenEventArgs(this, new StoreScreen(this.Game, event, ("WHERE garment_name LIKE '%"+searchBox.Text+"%' OR garment_type LIKE '%"+searchBox.Text+"%' OR colour LIKE '%"+searchBox.Text+"%'" ), kinect)))
             do searchButton.Click.Add(searchClickHandler)
 
             let garmentClickHandler (args:GarmentItemClickedEventArgs)= 
@@ -483,11 +484,16 @@
                 let startYPos = System.Math.Min(((game.GraphicsDevice.Viewport.Height / 2) - ((Seq.length(garmentList) + 1)*110)/2), 10)
                 garmentItems <- new MenuItemList(game, kinect)
                 let kinect = base.KinectUI
-                garmentList
-                |> Seq.iter (fun (x:Store.Garment) -> (let newGarment = new GarmentItem(game, x, new Vector2(250.0f,((200.0f+(float32)x.ID * 110.0f) + float32 startYPos)), kinect) //make a new garment Object
-                                                       newGarment.Click.Add(fun x -> garmentClickHandler x) //add it's click handler
-                                                       newGarment.DrawOrder <- 1
-                                                       garmentItems.Add(newGarment))) //add it to the garment items list
+                let mutable garmentNumber = 0
+                for x in garmentList do
+                    let newGarment = new GarmentItem(game, x, new Vector2(250.0f,((200.0f+(float32)garmentNumber * 110.0f) + float32 startYPos)), kinect) //make a new garment Object
+                    newGarment.Click.Add(fun x -> garmentClickHandler x) //add it's click handler
+                    newGarment.DrawOrder <- 1
+                    garmentItems.Add(newGarment) //add it to the garment items list
+                    garmentNumber <- garmentNumber + 1
+                if Seq.length garmentList = 0 then //search yielded no results /no items in the store
+                    this.Game.Components.Add(noItemsLabel)
+                    noItemsLabel.DrawOrder <- 1
                 garmentItems.DrawOrder <- 1
                 this.Game.Components.Add(garmentItems)
                 this.Game.Components.Add(searchBox)
@@ -505,6 +511,7 @@
                 this.Game.Components.Remove(garmentItems) |> ignore
                 this.Game.Components.Remove(searchBox) |> ignore
                 this.Game.Components.Remove(searchButton) |> ignore
+                this.Game.Components.Remove(noItemsLabel) |> ignore
                 searchBox.Deselect
                 base.DestroyScene()
 

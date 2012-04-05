@@ -439,7 +439,7 @@ open Kinect
                //List.iter (fun (x:GarmentItem) -> x.Initialize()) list
 
             member this.Height
-                with get() = float32((list.Count) * ((list.Item 0).Sprite.Height + 10))
+                with get() = if list.Count > 0 then float32((list.Count) * ((list.Item 0).Sprite.Height + 10)) else 0.0f
 
             override this.Update(gameTime)=
                 let dScrollWheel = (float32 (Mouse.GetState().ScrollWheelValue - lastMouseWheel))/10.0f
