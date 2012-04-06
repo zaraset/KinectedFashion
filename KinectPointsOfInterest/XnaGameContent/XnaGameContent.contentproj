@@ -323,18 +323,8 @@
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
-    <Compile Include="UI\MeasurementInstructions\MeasureInstructionsManSide800x600.png">
-      <Name>MeasureInstructionsManSide800x600</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
     <Compile Include="UI\MeasurementInstructions\MeasureInstructionsWomanFrontBack800x600.png">
       <Name>MeasureInstructionsWomanFrontBack800x600</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="UI\MeasurementInstructions\MeasureInstructionsWomanSide800x600.png">
-      <Name>MeasureInstructionsWomanSide800x600</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
@@ -359,7 +349,18 @@
       <Name>SkinnedModelProcessor</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Compile Include="UI\MeasurementInstructions\MeasureInstructionsManSide800x600.png">
+      <Name>MeasureInstructionsManSide800x600</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="UI\MeasurementInstructions\MeasureInstructionsWomanSide800x600.png">
+      <Name>MeasureInstructionsWomanSide800x600</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+  </ItemGroup>
   <ItemGroup>
     <Compile Include="UI\HandRight70x81Animated.png">
       <Name>HandRight70x81Animated</Name>

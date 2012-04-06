@@ -429,7 +429,7 @@ open System.IO
     type BodyMeasurementsPostProcess(game:Game, kinect:KinectPointsOfInterest.Kinect.KinectMeasure, frontBodys:Body[], leftSideBodys:Body[], backBodys:Body[])=
         inherit DrawableGameComponent(game)
         let DEPTH_WIDTH = 320
-        let DEPTH_HEIGHT = 320
+        let DEPTH_HEIGHT = 240
         let phi = 1.61803399 //golden ratio
         
         //points of interest

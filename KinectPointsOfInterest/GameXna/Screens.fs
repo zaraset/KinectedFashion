@@ -290,11 +290,15 @@
 
             let shopButtonHandler args= event.Trigger(new ChangeScreenEventArgs(this, new StoreScreen(this.Game, event, "", kinect)))
             
+            do measureButton.Click.Add(measureButtonHandler)
+            do shopButton.Click.Add(shopButtonHandler)
+            do measureButton.KinectClick.Add(measureButtonHandler)
+            do shopButton.KinectClick.Add(shopButtonHandler)
+
             override this.Initialize()=
                 measureButton.DrawOrder <- 1
                 shopButton.DrawOrder <- 1
-                measureButton.Click.Add(fun args -> measureButtonHandler args)
-                shopButton.Click.Add(fun args -> shopButtonHandler args)
+                
                 this.Game.Components.Add(measureButton)
                 this.Game.Components.Add(shopButton)
                 base.Initialize()
@@ -388,6 +392,7 @@
                     errorBox <- new ErrorBox(game, "Login Failed", "Incorrect Username or Password, please try again.\nIf you do not have an account visit \nkinect.fadeinfuture.net/kinectedfashion to register", kinect)
                     errorBox.DrawOrder <- 5
                     errorBox.Click.Add(ErrorClickHandler)
+                    errorBox.KinectClick.Add(ErrorClickHandler)
                     //disable the buttons below so that they cannot be clicked through the errr message
                     nextButton.ClicksDisable
                     backButton.ClicksDisable
@@ -426,22 +431,26 @@
                 
                 base.DestroyScene()
 
-        and GenderSelectScreen(game:Game, e:Event<ChangeScreenEventArgs>, kinect) as this=
+        and GenderSelectScreen(game:Game, event:Event<ChangeScreenEventArgs>, kinect) as this=
             inherit Menu(game, kinect)
 
             let maleButton = new Button(game, "UI/MaleButton300x300", "no_shadow", new Vector2(90.0f,150.0f), base.KinectUI)
             let femaleButton = new Button(game, "UI/FemaleButton300x300", "no_shadow", new Vector2(410.0f,150.0f), base.KinectUI)
-            let event = e
+            
 
             let genderSelectedHandler (args:ButtonClickedEventArgs)= 
                 match args.Sender with
                     | x when x = maleButton -> event.Trigger(new ChangeScreenEventArgs(this, new MeasurementScreen(this.Game, "male", event, kinect)))
                     | x when x = femaleButton -> event.Trigger(new ChangeScreenEventArgs(this, new MeasurementScreen(this.Game, "female", event, kinect)))
                     | _ -> () //should never happen as there is no other buttons
+            
+            do maleButton.Click.Add(genderSelectedHandler)
+            do femaleButton.Click.Add(genderSelectedHandler)
+            do maleButton.KinectClick.Add(genderSelectedHandler)
+            do femaleButton.KinectClick.Add(genderSelectedHandler)
 
             override this.Initialize()=
-                maleButton.Click.Add(fun args -> genderSelectedHandler args)
-                femaleButton.Click.Add(fun args -> genderSelectedHandler args)
+                
 
                 maleButton.DrawOrder <- 1
                 femaleButton.DrawOrder <- 1
@@ -457,26 +466,27 @@
                 this.Game.Components.Remove(femaleButton) |> ignore
                 base.DestroyScene()
 
-        and StoreScreen(game:Game, e:Event<ChangeScreenEventArgs>, searchTerm, kinect) as this=
+        and StoreScreen(game:Game, event:Event<ChangeScreenEventArgs>, searchTerm, kinect) as this=
             inherit Menu(game, kinect)
 
             let dbAccess = new Database.DatabaseAccess()
 
             let mutable garmentItems = new MenuItemList(game, kinect)
             let mutable femaleButton = null
-            let event = e
 
             let searchBox = new TextBox(game, false, "UI/BlueButton600x150", "", new Vector2(62.0f, 30.0f), kinect)
             let searchButton = new TextButton(game, "UI/BlueButton300x150", "", "Search!", new Vector2(662.0f, 30.0f), kinect)
-            
+            do searchBox.KinectClick.Add(fun x -> event.Trigger(new ChangeScreenEventArgs(this, (new KinectTextInputScreen(game, (x.Sender :?> TextBox) , event, this, kinect ))))) // go back to previous screen
+
             let noItemsLabel = new Label(game, (if searchTerm = "" then "The store has no items for sale" else "No items found for your search"), new Vector2(200.0f, 200.0f))
 
             let searchClickHandler args= 
-                e.Trigger(new ChangeScreenEventArgs(this, new StoreScreen(this.Game, event, ("WHERE garment_name LIKE '%"+searchBox.Text+"%' OR garment_type LIKE '%"+searchBox.Text+"%' OR colour LIKE '%"+searchBox.Text+"%'" ), kinect)))
+                event.Trigger(new ChangeScreenEventArgs(this, new StoreScreen(this.Game, event, ("WHERE garment_name LIKE '%"+searchBox.Text+"%' OR garment_type LIKE '%"+searchBox.Text+"%' OR colour LIKE '%"+searchBox.Text+"%'" ), kinect)))
             do searchButton.Click.Add(searchClickHandler)
+            do searchButton.KinectClick.Add(searchClickHandler)
 
             let garmentClickHandler (args:GarmentItemClickedEventArgs)= 
-                e.Trigger(new ChangeScreenEventArgs(this, new GarmentScreen(this.Game, args.Garment, event, this, kinect)))
+                event.Trigger(new ChangeScreenEventArgs(this, new GarmentScreen(this.Game, args.Garment, event, this, kinect)))
 
             override this.Initialize()=
                 let garmentList = dbAccess.getGarments null searchTerm
@@ -584,21 +594,31 @@
 
             do for x in keys do //add event handlers for each key
                 x.Click.Add(fun args -> textBox.AddChar (x.Label))
-            do capsButton.Click.Add(fun x -> caps <- not caps //add caps togle event handler
-                                             capsButton.Toggle
-                                             for i = 0 to charSet.Length - 1 do
-                                                    keys.[i].ChangeText (if caps then charSetCaps.Substring(i,1) else if more then charSetMore.Substring(i,1) else charSet.Substring(i,1))
-                                             )
-            do moreButton.Click.Add(fun x -> more <- not more
-                                             moreButton.Toggle
-                                             for i = 0 to charSet.Length - 1 do
-                                                    keys.[i].ChangeText (if more then charSetMore.Substring(i,1) else if caps then charSetCaps.Substring(i,1) else charSet.Substring(i,1))
-                                             )
-            do okButton.Click.Add(fun x -> textBox.ClicksEnable
-                                           textBox.Position <- prevTextBoxPos //add ok button event handler
-                                           textBox.Security <- prevTextBoxSecurity
-                                           e.Trigger(new ChangeScreenEventArgs(this, prevScreen)))
+                x.KinectClick.Add(fun args -> textBox.AddChar (x.Label))
+            let capsClickHandler args= 
+                caps <- not caps //add caps togle event handler
+                capsButton.Toggle
+                for i = 0 to charSet.Length - 1 do
+                    keys.[i].ChangeText (if caps then charSetCaps.Substring(i,1) else if more then charSetMore.Substring(i,1) else charSet.Substring(i,1))  
+            do capsButton.Click.Add(capsClickHandler) 
+            do capsButton.KinectClick.Add(capsClickHandler) 
+            let moreClickHandler args =
+                more <- not more
+                moreButton.Toggle
+                for i = 0 to charSet.Length - 1 do
+                    keys.[i].ChangeText (if more then charSetMore.Substring(i,1) else if caps then charSetCaps.Substring(i,1) else charSet.Substring(i,1))
+                                             
+            do moreButton.Click.Add(moreClickHandler)
+            do moreButton.KinectClick.Add(moreClickHandler)
+            let okClickHandler args =
+                textBox.ClicksEnable
+                textBox.Position <- prevTextBoxPos //add ok button event handler
+                textBox.Security <- prevTextBoxSecurity
+                e.Trigger(new ChangeScreenEventArgs(this, prevScreen))
+            do okButton.Click.Add(okClickHandler)
+            do okButton.KinectClick.Add(okClickHandler)
             do backspaceButton.Click.Add(fun x -> textBox.Backspace)  //add backspace key event handle
+            do backspaceButton.KinectClick.Add(fun x -> textBox.Backspace)
                 
             override this.LoadContent()=
                 base.LoadContent()

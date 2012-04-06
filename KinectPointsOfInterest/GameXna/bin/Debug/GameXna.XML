@@ -759,6 +759,9 @@ hips &lt;-  float32 h
 <member name="">
 
 </member>
+<member name="">
+
+</member>
 <member name="T:KinectPointsOfInterest.Kinect">
 
 </member>
@@ -1453,6 +1456,27 @@ hips &lt;-  float32 h
 
 </member>
 <member name="T:KinectPointsOfInterest.Program">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
 
 </member>
 <member name="">

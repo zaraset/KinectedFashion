@@ -36,7 +36,7 @@
 
         let processJoint (joint:Joint, nui:KinectSensor) = //process the joint and translates it from depth space to screen space for a given resolution
                 let DIPoint = nui.MapSkeletonPointToDepth(joint.Position, DepthImageFormat.Resolution320x240Fps30)
-                new Vector3(float32 DIPoint.X * 4.0f - 256.0f , float32 DIPoint.Y* 4.0f - 256.0f, joint.Position.Z )
+                new Vector3(float32 DIPoint.X * 5.0f - 576.0f , float32 DIPoint.Y* 5.0f - 432.0f, joint.Position.Z )
         
         let processJointRel (joint:Joint, nui:KinectSensor, referenceJoint:Joint) = //process the joint and translates it from depth space to screen space for a given resolution
                 let DIPoint = nui.MapSkeletonPointToDepth(joint.Position, DepthImageFormat.Resolution320x240Fps30)
@@ -151,7 +151,7 @@
             inherit DrawableGameComponent(game)
         
             let CLICKSENSITIVITY = 5 //lower is more sensitive
-            let CLICKTIME = 1.5
+            let CLICKTIME = 1.0
         
             let mutable nui = null
             
@@ -183,6 +183,8 @@
             let mutable rightClickTime = 0.0
             let mutable leftClickTime = 0.0
             let mutable lastRightHandPos = Vector3.Zero
+            let mutable lastLeftHandPos = Vector3.Zero
+            
 
             let mutable rightHandSprite:Texture2D = null //hand cursor texture
             let mutable leftHandSprite:Texture2D = null
@@ -267,30 +269,39 @@
 //                        clickSound.Play() |> ignore
 //                    else if (Vector3.Distance(leftShoulder, leftHand)) < CLICKSENSITIVITY then //relese left hand click
 //                        leftHandColor <- Color.White
-                        if (fuzzyEqualsVector lastRightHandPos rightHand CLICKSENSITIVITY) then
+                        if (fuzzyEqualsVector lastRightHandPos rightHand CLICKSENSITIVITY && (rightHand.Z + 0.2f < centerShoulder.Z) )then
                             rightClickTime <- rightClickTime + gameTime.ElapsedGameTime.TotalSeconds
                         else
                             rightHandClick <- false
                             rightClickTime <- 0.0
-                    
                         if rightClickTime >= CLICKTIME && not rightHandClick then
-                            System.Diagnostics.Debug.WriteLine(">>>>>>>>>>>kinectClick @ " + string gameTime.TotalGameTime.Seconds + " seconds<<<<<<<<<<<<")
                             countClicks <- countClicks + 1
                             rightHandClick <- true
                             clickSound.Play() |> ignore
-                            System.Diagnostics.Debug.WriteLine(">>>>>>>>>>>end of kinect click<<<<<<<<<<<<")
-                        if rightClickTime >= CLICKTIME + 0.5 then
-                            rightHandClick <- false
-                            rightClickTime <- 0.0
-                    lastRightHandPos <- rightHand //update last right hand position
+                        lastRightHandPos <- rightHand //update last right hand position
+
+                        if (fuzzyEqualsVector lastLeftHandPos leftHand CLICKSENSITIVITY && (leftHand.Z + 0.2f < centerShoulder.Z)) then
+                                leftClickTime <- leftClickTime + gameTime.ElapsedGameTime.TotalSeconds
+                        else
+                            leftHandClick <- false
+                            leftClickTime <- 0.0
+
+                        if leftClickTime >= CLICKTIME && not leftHandClick then
+                            countClicks <- countClicks + 1
+                            leftHandClick <- true
+                            clickSound.Play() |> ignore
+                    lastLeftHandPos <- leftHand //update last right hand position
 
             override this.Draw gameTime=
                 if nui <> null then //only draw the hand cursor if a kinect is connected
-                    let rightHandAnimationFrame = int (Math.Min((Math.Round((rightClickTime * (10.0/CLICKTIME)), 0)), 10.0))
+                    let rightHandAnimationFrame = int (Math.Min((Math.Round((rightClickTime * (10.0/CLICKTIME)), 0)), 9.0))
+                    let leftHandAnimationFrame = int (Math.Min((Math.Round((leftClickTime * (10.0/CLICKTIME)), 0)), 9.0))
+                    
                     System.Diagnostics.Debug.WriteLine("aniFrame:" + rightHandAnimationFrame.ToString())
                     spriteBatch.Begin()
-                    spriteBatch.Draw(rightHandSprite, new Vector2(rightHand.X, rightHand.Y), Nullable<_> (new Rectangle (rightHandAnimationFrame*70,0, 70,81)), Color.White) //draw right hand cursor
-                    spriteBatch.Draw(leftHandSprite, new Vector2(leftHand.X, leftHand.Y), Color.White) //draw left hand cursor
+                    spriteBatch.Draw(rightHandSprite, new Rectangle(int rightHand.X, int rightHand.Y, 70, 81), Nullable<_> (new Rectangle (rightHandAnimationFrame*70,0, 70,81)), Color.White, 0.0f, new Vector2(30.0f, 18.0f), SpriteEffects.None, 0.0f) //draw right hand cursor
+                    spriteBatch.Draw(rightHandSprite, new Rectangle(int leftHand.X, int leftHand.Y, 70, 81), Nullable<_> (new Rectangle (leftHandAnimationFrame*70,0, 70,81)), Color.White, 0.0f, new Vector2(30.0f, 18.0f), SpriteEffects.FlipHorizontally, 0.0f) //draw right hand cursor
+                     //draw left hand cursor
                     spriteBatch.Draw(jointSprite, new Vector2(rightShoulder.X, rightShoulder.Y), Color.White)
                     spriteBatch.Draw(jointSprite, new Vector2(leftShoulder.X, leftShoulder.Y), Color.White)
                     spriteBatch.Draw(jointSprite, new Vector2(leftElbow.X, leftElbow.Y), Color.White)
@@ -329,7 +340,7 @@
                     "None"
             member this.GetPose(gameTime:GameTime) = 
                 lastPoseTime <- lastPoseTime + gameTime.ElapsedGameTime.Milliseconds
-                if lastPoseTime >= 500 then
+                if lastPoseTime >= 250 then
                     if skeletonFrame <> null then 
                         for x = 0 to 4 do
                             prevPoseStates.[x] <- prevPoseStates.[x+1]
@@ -367,13 +378,22 @@
                 with get() = centerHips
 
         and KinectPoseState(game:Game, nui:KinectSensor, leftHand,rightHand,leftFoot,rightFoot,leftShoulder,rightShoulder,centerShoulder, centerHips )=
-            let depthWidth, depthHeight = 1024, 768
+            let scaleVector v= Vector3.Divide(Vector3.Add(v, new Vector3(576.0f, 432.0f, 0.0f)), 5.0f)
+            let leftHand = scaleVector leftHand
+            let rightHand = scaleVector rightHand
+            let leftShoulder = scaleVector leftShoulder
+            let rightShoulder = scaleVector rightShoulder
+            let leftFoot = scaleVector leftFoot
+            let rightFoot = scaleVector rightFoot
+            let centerShoulder = scaleVector centerShoulder
+            let centerHips = scaleVector centerHips
+            
             new(game:Game, nui:KinectSensor) = KinectPoseState(game, nui, Vector3.Zero, Vector3.Zero, Vector3.Zero, Vector3.Zero, Vector3.Zero, Vector3.Zero, Vector3.Zero, Vector3.Zero)
-
+            
             //detects if the user in standing in the correct pos to be measured from the front
             member this.FrontMeasurePose=
                 let mutable result = false
-                let disparity = 20
+                let disparity = 30
                 if fuzzyEquals leftHand.Y rightHand.Y disparity && not (fuzzyEquals leftHand.X rightHand.X 5)//left and right hand are level
                 && fuzzyEquals leftShoulder.Y rightShoulder.Y disparity && not (fuzzyEquals leftShoulder.X rightHand.X disparity) // left and right shoulder are straight
                 && fuzzyEquals leftHand.Y centerShoulder.Y disparity //left hand is level with shoulders
@@ -386,8 +406,8 @@
             //detects if the user in standing in the correct pos to be measured from the front
             member this.SideMeasurePose=
                 let mutable result = false
-                let disparity = 20
-                if fuzzyEquals leftHand.Y rightHand.Y disparity && fuzzyEquals leftHand.X rightHand.X disparity//left and right hand are level//left and right hand are level
+                let disparity = 30
+                if fuzzyEquals leftHand.Y leftShoulder.Y disparity && fuzzyEquals leftHand.X leftShoulder.X disparity//left and right hand are level//left and right hand are level
                 && fuzzyEquals leftShoulder.Y rightShoulder.Y disparity && fuzzyEquals leftShoulder.X rightShoulder.X disparity // left and right shoulder are straight
                 && fuzzyEquals leftHand.Y centerShoulder.Y disparity && fuzzyEquals leftHand.X centerShoulder.X disparity //left hand is level with shoulders
                 && fuzzyEquals centerShoulder.X centerHips.X disparity //back is straight
