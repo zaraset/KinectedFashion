@@ -670,7 +670,7 @@ open System.IO
             let mutable h = 0
             let mutable hipWidth = 0
             let mutable y = int (leftSideBody.GetJoint("centerHip").Y) //start at waist as hips are below waist
-            while y < (int kneeL.Y) do //finish at knee as hips are below knee
+            while y < (int kneeL.Y) && y < DEPTH_HEIGHT do //finish at knee as hips are below knee
                 let mutable x = 0
                 let mutable currentFoundWidth = 0
                 while x < int footL.X do

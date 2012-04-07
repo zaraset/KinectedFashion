@@ -152,8 +152,14 @@
             let mutable leftClick = true
 
             let mutable depthImage:Texture2D = null//depth image map
-            let mutable clickSound:SoundEffect = null
-            let mutable beepSound:SoundEffect = null
+            
+            let mutable instructionAudio_frontPose:SoundEffect = null
+            let mutable instructionAudio_frontDone:SoundEffect = null
+            let mutable instructionAudio_sidePose:SoundEffect = null
+            let mutable instructionAudio_sideDone:SoundEffect = null
+            let mutable instructionAudio_backPose:SoundEffect = null
+            let mutable instructionAudio_backDone:SoundEffect = null
+            let mutable instructionAudio_allDone:SoundEffect = null
 
             let mutable nextButton = new TextButton(game, "nextButton", "no_shadow", "Next", new Vector2( 300.0f, 300.0f), base.KinectUI)
             
@@ -178,8 +184,13 @@
 
             override this.LoadContent() =
                 sprite <- this.Game.Content.Load<Texture2D>("Sprite")
-                clickSound <- this.Game.Content.Load<SoundEffect>("click_1")
-                beepSound <- this.Game.Content.Load<SoundEffect>("BEEP1A")
+                instructionAudio_frontPose <- this.Game.Content.Load<SoundEffect>("InstructionsAudio/instruction_start")
+                instructionAudio_frontDone <- this.Game.Content.Load<SoundEffect>("InstructionsAudio/instruction_measuring1")
+                instructionAudio_sidePose <- this.Game.Content.Load<SoundEffect>("InstructionsAudio/instruction_sidePose")
+                instructionAudio_sideDone <- this.Game.Content.Load<SoundEffect>("InstructionsAudio/instruction_measuring2")
+                instructionAudio_backPose <- this.Game.Content.Load<SoundEffect>("InstructionsAudio/instruction_backPose")
+                instructionAudio_backDone <- this.Game.Content.Load<SoundEffect>("InstructionsAudio/instruction_measuring2")
+                instructionAudio_allDone <- this.Game.Content.Load<SoundEffect>("InstructionsAudio/instruction_done")
                 base.LoadContent()
 
             override this.Update gameTime = 
@@ -197,20 +208,20 @@
                     backInstructions.DestroyScene
                     game.Components.Remove(backInstructions) |> ignore
 
-                    clickSound.Play() |> ignore
+                    instructionAudio_backDone.Play() |> ignore //measuring back, hold still
                     for i = 0 to noOfSamples-1 do
                         backBody.[i] <- kinect.CaptureBody
-                    beepSound.Play() |> ignore
+                    instructionAudio_allDone.Play() |> ignore //all finsished!
                     backReady <-true
                     
                 else if sideReady && sideBody.[0] = null then
                     sideInstructions.DestroyScene
                     game.Components.Remove(sideInstructions) |> ignore
 
-                    clickSound.Play() |> ignore
+                    instructionAudio_sideDone.Play() |> ignore //measuring side, hold still
                     for i = 0 to noOfSamples-1 do
                         sideBody.[i] <- kinect.CaptureBody
-                    beepSound.Play() |> ignore
+                    instructionAudio_backPose.Play() |> ignore //finishedSide, back Pose
                     
                     game.Components.Add(backInstructions)
 
@@ -218,10 +229,10 @@
                     frontInstructions.DestroyScene
                     game.Components.Remove(frontInstructions) |> ignore
 
-                    clickSound.Play() |> ignore
+                    instructionAudio_frontDone.Play() |> ignore //ask user to hold still while measurement is taking place
                     for i = 0 to noOfSamples-1 do
                         frontBody.[i] <- kinect.CaptureBody
-                    beepSound.Play() |> ignore
+                    instructionAudio_sidePose.Play() |> ignore //ask the user to get into the next pose (side)
                     
                     game.Components.Add(sideInstructions)
                     

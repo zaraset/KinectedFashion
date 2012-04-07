@@ -36,12 +36,12 @@
 
         let processJoint (joint:Joint, nui:KinectSensor) = //process the joint and translates it from depth space to screen space for a given resolution
                 let DIPoint = nui.MapSkeletonPointToDepth(joint.Position, DepthImageFormat.Resolution320x240Fps30)
-                new Vector3(float32 DIPoint.X * 5.0f - 576.0f , float32 DIPoint.Y* 5.0f - 432.0f, joint.Position.Z )
+                new Vector3(float32 DIPoint.X, float32 DIPoint.Y, joint.Position.Z )
         
-        let processJointRel (joint:Joint, nui:KinectSensor, referenceJoint:Joint) = //process the joint and translates it from depth space to screen space for a given resolution
+        let processJointCursor (joint:Joint, nui:KinectSensor) = //process the joint and translates it from depth space to screen space for a given resolution
                 let DIPoint = nui.MapSkeletonPointToDepth(joint.Position, DepthImageFormat.Resolution320x240Fps30)
-                let DIRef = nui.MapSkeletonPointToDepth(referenceJoint.Position, DepthImageFormat.Resolution320x240Fps30)
-                new Vector3(float32 ((DIPoint.X*6)-DIRef.X), float32 ((DIPoint.Y*6)-DIRef.Y), joint.Position.Z )
+                new Vector3(float32 DIPoint.X * 5.0f - 576.0f , float32 DIPoint.Y* 5.0f - 432.0f, joint.Position.Z )
+
 
         type KinectMeasure(game:Game)=
             inherit DrawableGameComponent(game)
@@ -233,16 +233,16 @@
                         for skeleton in skeletons do
                             if skeleton.TrackingState.Equals(SkeletonTrackingState.Tracked) then
                                 //let depthWidth, depthHeight = 320, 240
-                                leftHand <- processJoint( skeleton.Joints.[JointType.HandLeft], nui)
-                                leftShoulder <- processJoint( skeleton.Joints.[JointType.ShoulderLeft], nui)
-                                leftElbow <- processJoint(skeleton.Joints.[JointType.ElbowLeft], nui)
-                                rightHand <- processJoint(skeleton.Joints.[JointType.HandRight], nui)
-                                centerHip <- processJoint(skeleton.Joints.[JointType.HipCenter], nui)
-                                rightElbow <- processJoint(skeleton.Joints.[JointType.ElbowRight], nui)
-                                rightShoulder <- processJoint(skeleton.Joints.[JointType.ShoulderRight], nui)
-                                rightFoot <- processJoint(skeleton.Joints.[JointType.FootRight], nui)
-                                leftFoot <- processJoint(skeleton.Joints.[JointType.FootRight], nui)
-                                centerShoulder <- processJoint(skeleton.Joints.[JointType.ShoulderCenter], nui)
+                                leftHand <- processJointCursor( skeleton.Joints.[JointType.HandLeft], nui)
+                                leftShoulder <- processJointCursor( skeleton.Joints.[JointType.ShoulderLeft], nui)
+                                leftElbow <- processJointCursor(skeleton.Joints.[JointType.ElbowLeft], nui)
+                                rightHand <- processJointCursor(skeleton.Joints.[JointType.HandRight], nui)
+                                centerHip <- processJointCursor(skeleton.Joints.[JointType.HipCenter], nui)
+                                rightElbow <- processJointCursor(skeleton.Joints.[JointType.ElbowRight], nui)
+                                rightShoulder <- processJointCursor(skeleton.Joints.[JointType.ShoulderRight], nui)
+                                rightFoot <- processJointCursor(skeleton.Joints.[JointType.FootRight], nui)
+                                leftFoot <- processJointCursor(skeleton.Joints.[JointType.FootRight], nui)
+                                centerShoulder <- processJointCursor(skeleton.Joints.[JointType.ShoulderCenter], nui)
                         //lastSkeletonFrame <- skeletonFrame
                         skeletonFrame.Dispose()
 
