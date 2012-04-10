@@ -49,6 +49,12 @@ XnaGameContent\UI\RedButton100x100.xnb
 XnaGameContent\UI\FullScreenButton100x100.xnb
 XnaGameContent\UI\NotFullScreenButton100x100.xnb
 XnaGameContent\click_1.xnb
+XnaGameContent\InstructionsAudio\instruction_backPose.xnb
+XnaGameContent\InstructionsAudio\instruction_done.xnb
+XnaGameContent\InstructionsAudio\instruction_measuring1.xnb
+XnaGameContent\InstructionsAudio\instruction_measuring2.xnb
+XnaGameContent\InstructionsAudio\instruction_sidePose.xnb
+XnaGameContent\InstructionsAudio\instruction_start.xnb
 XnaGameContent\Font.xnb
 XnaGameContent\textBoxFont.xnb
 XnaGameContent\garmentItemFont.xnb

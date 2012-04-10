@@ -29,7 +29,7 @@
                 background <- new Button(game, "UI/MeasurementInstructions/GrayBackground800x600", "none", new Vector2(112.0f, 84.0f), kinect)
                 do background.DrawOrder <- 10
                 do game.Components.Add(background)
-                instructionImage <- new Image(game, image_name, new Vector2(112.0f, 84.0f))
+                instructionImage <- new Image(game, image_name.ToString(), new Vector2(112.0f, 84.0f))
                 do instructionImage.DrawOrder <- 11
                 do game.Components.Add(instructionImage)
                 messageLabel <- new Label(game, instruction, new Vector2(512.0f, 650.0f))
@@ -133,7 +133,7 @@
                 this.Game.Components.Remove(backgroundFooter) |> ignore 
                 this.Game.Components.Remove(backgroundHeader) |> ignore 
 
-        and MeasurementScreen(game:Game, sex, e:Event<ChangeScreenEventArgs>, kinectUI)=
+        and MeasurementScreen(game:Game, sex, e:Event<ChangeScreenEventArgs>, kinectUI) as this=
             inherit Menu(game, kinectUI)
 
             let event = e
@@ -149,7 +149,6 @@
             let mutable backBody:Body[] = Array.zeroCreate noOfSamples //back data
             let mutable sideBody:Body[] = Array.zeroCreate noOfSamples //side data
 
-            let mutable leftClick = true
 
             let mutable depthImage:Texture2D = null//depth image map
             
@@ -164,21 +163,23 @@
             let mutable nextButton = new TextButton(game, "nextButton", "no_shadow", "Next", new Vector2( 300.0f, 300.0f), base.KinectUI)
             
             let mutable frontReady, sideReady, backReady = false, false, false
-            let mutable frontInstructions = new Instructions.MeasureFrontInstructionStep(game, "UI/MeasurementInstructions/MeasureInstructionsManFrontBack800x600", "Stand still with your arms out, facing the Kinect sensor", kinectUI)
+            let mutable frontInstructions = new Instructions.MeasureFrontInstructionStep(game, "UI/MeasurementInstructions/MeasureInstructions"+ (if sex = "male" then "Man" else "Woman") + "FrontBack800x600", "Stand still with your arms out, facing the Kinect sensor", kinectUI)
             do frontInstructions.UserComplied.Add(fun args -> frontReady <- true)
-            let mutable sideInstructions = new Instructions.MeasureSideInstructionStep(game, "UI/MeasurementInstructions/MeasureInstructionsManSide800x600", "Side", kinectUI)
+            let mutable sideInstructions = new Instructions.MeasureSideInstructionStep(game, "UI/MeasurementInstructions/MeasureInstructions"+ (if sex = "male" then "Man" else "Woman") + "Side800x600", "Side", kinectUI)
             do sideInstructions.UserComplied.Add(fun args -> sideReady <- true)
-            let mutable backInstructions = new Instructions.MeasureFrontInstructionStep(game, "UI/MeasurementInstructions/MeasureInstructionsManFrontBack800x600", "Back", kinectUI)
+            let mutable backInstructions = new Instructions.MeasureFrontInstructionStep(game, "UI/MeasurementInstructions/MeasureInstructions"+ (if sex = "male" then "Man" else "Woman") + "FrontBack800x600", "Back", kinectUI)
             do backInstructions.UserComplied.Add(fun args -> backReady <- true)
             
-            member this.ClickOption(mouseClickPos:Vector2)=
-                match mouseClickPos with
-                    | x when base.InBounds(x, nextButton) -> event.Trigger(new ChangeScreenEventArgs(this, new VisualisationScreen(this.Game, sex, 0, 0, 0, 0, event, kinectUI))) //clicked on next button
-                    | _ -> ()// clicked elsewhere, do nothing
+            let nextButtonClick args =
+                 event.Trigger(new ChangeScreenEventArgs(this, new VisualisationScreen(game, sex, 0, 0, 0, 0, event, kinectUI))) //clicked on next button
+            do nextButton.Click.Add(nextButtonClick)
+            do nextButton.KinectClick.Add(nextButtonClick)
+
 
             override this.Initialize()=
                 game.Components.Add(kinect)
                 game.Components.Add(nextButton)
+                nextButton.DrawOrder <- 1
                 game.Components.Add(frontInstructions)
                 base.Initialize()
 
@@ -192,25 +193,17 @@
                 instructionAudio_backDone <- this.Game.Content.Load<SoundEffect>("InstructionsAudio/instruction_measuring2")
                 instructionAudio_allDone <- this.Game.Content.Load<SoundEffect>("InstructionsAudio/instruction_done")
                 base.LoadContent()
+                instructionAudio_frontPose.Play() |> ignore
 
-            override this.Update gameTime = 
-                
-                if Mouse.GetState().LeftButton = ButtonState.Pressed && not leftClick then
-                    leftClick <- true
-                    this.ClickOption (new Vector2(float32(Mouse.GetState().X), float32( Mouse.GetState().Y)))
-                if Mouse.GetState().LeftButton = ButtonState.Released then
-                    leftClick <- false
-
+            override this.Update(gameTime)=
                 //KINECT TAKING THE MEASUREMENTS
-                timer <- timer - float32 gameTime.ElapsedGameTime.TotalMilliseconds
-                
                 if backReady && backBody.[0] = null then
                     backInstructions.DestroyScene
                     game.Components.Remove(backInstructions) |> ignore
 
                     instructionAudio_backDone.Play() |> ignore //measuring back, hold still
                     for i = 0 to noOfSamples-1 do
-                        backBody.[i] <- kinect.CaptureBody
+                        backBody.[i] <- kinect.CaptureBody.Clone
                     instructionAudio_allDone.Play() |> ignore //all finsished!
                     backReady <-true
                     
@@ -220,7 +213,8 @@
 
                     instructionAudio_sideDone.Play() |> ignore //measuring side, hold still
                     for i = 0 to noOfSamples-1 do
-                        sideBody.[i] <- kinect.CaptureBody
+                        sideBody.[i] <- kinect.CaptureBody.Clone
+                        ()
                     instructionAudio_backPose.Play() |> ignore //finishedSide, back Pose
                     
                     game.Components.Add(backInstructions)
@@ -231,24 +225,82 @@
 
                     instructionAudio_frontDone.Play() |> ignore //ask user to hold still while measurement is taking place
                     for i = 0 to noOfSamples-1 do
-                        frontBody.[i] <- kinect.CaptureBody
+                        frontBody.[i] <- kinect.CaptureBody.Clone
                     instructionAudio_sidePose.Play() |> ignore //ask the user to get into the next pose (side)
                     
                     game.Components.Add(sideInstructions)
-                    
+                //finsihed collecting the samples    
                 if frontBody.[noOfSamples-1] <> null && backBody.[noOfSamples-1] <> null && sideBody.[noOfSamples-1] <> null && not finished then
                     //game.Components.Add(new BodyMeasurements(this, kinect, frontBody, sideBody, backBody))
                     //this.Game.Components.Add(new BodyMeasurementsPostProcess(this.Game, kinect, frontBody, sideBody, backBody))
-                    let processor = new BodyMeasurementsPostProcess(this.Game, kinect, frontBody, sideBody, backBody)
+                    let processor = new BodyMeasurements(this.Game, kinect, frontBody, sideBody, backBody)
                     let (waist, hips, height) = processor.GetMeasurements
                     printfn "WAIST=%A \nHIPS=%A \nHEIGHT=%A" waist hips height
                     finished <- true
-                    event.Trigger(new ChangeScreenEventArgs(this, new VisualisationScreen(game, sex, height, 10, waist, hips, e, kinectUI)))
+                    let frontImg = new ImageTexture(game, (processor.GetAvgBodyTexture frontBody), new Vector2(0.0f, 100.0f))
+                    game.Components.Add(frontImg)
+                    let sideImg = new ImageTexture(game, (processor.GetAvgBodyTexture sideBody), new Vector2(320.0f, 100.0f))
+                    game.Components.Add(sideImg)
+                    let backImg = new ImageTexture(game, (processor.GetAvgBodyTexture backBody), new Vector2(640.0f, 100.0f))
+                    game.Components.Add(backImg)
+                    //System.Windows.Forms.MessageBox.Show(waist.ToString() + ", " + hips.ToString() + ", " + height.ToString()) |> ignore
+                    
+                    event.Trigger(new ChangeScreenEventArgs(this, new MeasurementCompleteScreen(game, sex, int height, int waist, int hips, 10, e, kinectUI)))
                 base.Update gameTime
 
             override this.DestroyScene()=
                 this.Game.Components.Remove(kinect) |> ignore
                 this.Game.Components.Remove(nextButton) |> ignore
+                base.DestroyScene()
+
+        and MeasurementCompleteScreen(game:Game, sex, height, waist, hips, chest, e:Event<ChangeScreenEventArgs>, kinect) as this=
+            inherit Menu(game, kinect)
+
+            let mutable tryagain = new TextButton(game, "UI/BlueButton200x100", "no_shadow", "Try again", new Vector2(300.0f,600.0f), base.KinectUI)
+            let mutable okButton = new TextButton(game, "UI/BlueButton200x100", "no_shadow", "Save", new Vector2(524.0f,600.0f), base.KinectUI)
+            
+            let heightLabel = new Label(game, "Height:" + height.ToString(), new Vector2(90.0f,150.0f)) 
+            let waistLabel = new Label(game, "Waist:" + waist.ToString(), new Vector2(90.0f,200.0f)) 
+            let hipsLabel = new Label(game, "Hips:" + hips.ToString(), new Vector2(90.0f,300.0f)) 
+            let chestLabel = new Label(game, "Chest:" + chest.ToString(), new Vector2(90.0f,400.0f)) 
+
+            let event = e
+            
+            let tryagainHandler args= event.Trigger(new ChangeScreenEventArgs(this, new MeasurementScreen(this.Game, sex, event, kinect)))
+
+            let shopButtonHandler args= event.Trigger(new ChangeScreenEventArgs(this, new StoreScreen(this.Game, event, "", kinect)))
+            
+            do tryagain.Click.Add(tryagainHandler)
+            do okButton.Click.Add(shopButtonHandler)
+            do tryagain.KinectClick.Add(tryagainHandler)
+            do okButton.KinectClick.Add(shopButtonHandler)
+
+            override this.Initialize()=
+                tryagain.DrawOrder <- 1
+                okButton.DrawOrder <- 1
+                heightLabel.DrawOrder <- 1
+                hipsLabel.DrawOrder <- 1
+                chestLabel.DrawOrder <- 1
+                waistLabel.DrawOrder <- 1
+                
+                this.Game.Components.Add(tryagain)
+                this.Game.Components.Add(okButton)
+                this.Game.Components.Add(heightLabel)
+                this.Game.Components.Add(waistLabel)
+                this.Game.Components.Add(hipsLabel)
+                this.Game.Components.Add(chestLabel)
+                base.Initialize()
+
+            override this.LoadContent()=
+                base.LoadContent()
+
+            override this.DestroyScene()=
+                this.Game.Components.Remove(tryagain) |> ignore
+                this.Game.Components.Remove(okButton) |> ignore
+                this.Game.Components.Remove(heightLabel) |> ignore
+                this.Game.Components.Remove(waistLabel) |> ignore
+                this.Game.Components.Remove(chestLabel) |> ignore
+                this.Game.Components.Remove(hipsLabel) |> ignore
                 base.DestroyScene()
 
         and VisualisationScreen(game:Game, sex, height, chest, waist, hips, e:Event<ChangeScreenEventArgs>, kinect)=
@@ -396,7 +448,7 @@
             let LoginHandler args= //tries to login
                 let db = new Database.DatabaseAccess()
                 let customer = db.getCustomer username.Text password.Text //try to login
-                if customer <> null then //if login succeded
+                if customer then //if login succeded
                     e.Trigger(new ChangeScreenEventArgs(this, new MainMenu(this.Game, e, kinect)))
                 else //if login failed
                     //show error message
@@ -404,7 +456,7 @@
                     errorBox.DrawOrder <- 5
                     errorBox.Click.Add(ErrorClickHandler)
                     errorBox.KinectClick.Add(ErrorClickHandler)
-                    //disable the buttons below so that they cannot be clicked through the errr message
+                    //disable the buttons below so that they cannot be clicked through the error message
                     nextButton.ClicksDisable
                     backButton.ClicksDisable
                     username.Deselect

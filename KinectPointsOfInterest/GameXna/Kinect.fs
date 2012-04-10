@@ -46,10 +46,8 @@
         type KinectMeasure(game:Game)=
             inherit DrawableGameComponent(game)
 
-
-            let nui = KinectSensor.KinectSensors.[0]//kinect natural user interface object
             let body = new BodyData.Body()
-
+            let mutable nui = null
             let maxDist = 4000
             let minDist = 850
             let distOffset = maxDist - minDist
@@ -61,44 +59,46 @@
 
             override this.Initialize ()=
                 try 
+                    nui <- KinectSensor.KinectSensors.[0]//kinect natural user interface object
                     do nui.Start() 
                     do nui.DepthStream.Enable(DepthImageFormat.Resolution320x240Fps30)
                 with
                     | :? System.InvalidOperationException -> System.Diagnostics.Debug.Write("Kinect not connected!")
+                    | :? System.ArgumentOutOfRangeException -> System.Diagnostics.Debug.Write("Kinect not connected!")
                 spriteBatch <- new SpriteBatch(game.GraphicsDevice)
             
-            override this.LoadContent()=
-                liveDepthView <- new Texture2D(game.GraphicsDevice, 320, 240)
-            
-            override this.Update gameTime=
-                let args = nui.DepthStream.OpenNextFrame 0
-
-                if args <> null then
-                    let depthPixelData = Array.init args.PixelDataLength (fun x-> int16 0)
-                    args.CopyPixelDataTo depthPixelData
-                    let img = new Texture2D(game.GraphicsDevice, args.Width, args.Height)
-                    let DepthColor = Array.create (depthPixelData.Length) (new Color(255,255,255))
-
-                    for n = 0 to depthPixelData.Length-1 do
-                        
-                        let distance = (int depthPixelData.[n] >>> DepthImageFrame.PlayerIndexBitmaskWidth ) //put together bit data as depth
-                        let pI = (int depthPixelData.[n] &&& DepthImageFrame.PlayerIndexBitmask) // gets the player index
-                        liveDepthData.[n] <- if pI > 0 then distance else 0
-                        let intensity = (if pI > 0 then (255-(255 * Math.Max(int(distance-minDist),0)/distOffset)) else 0) //convert distance into a gray level value between 0 and 255 taking into account min and max distances of the kinect.
-                        let colour = new Color(intensity, intensity, intensity)
-                        DepthColor.[n] <- colour
-                    img.SetData(DepthColor)
-                    liveDepthView <- img
+//            override this.LoadContent()=
+//                liveDepthView <- new Texture2D(game.GraphicsDevice, 320, 240)
+//            
+//            override this.Update gameTime=
+//                let args = nui.DepthStream.OpenNextFrame 0
+//
+//                if args <> null then
+//                    let depthPixelData = Array.init args.PixelDataLength (fun x-> int16 0)
+//                    args.CopyPixelDataTo depthPixelData
+//                    let img = new Texture2D(game.GraphicsDevice, args.Width, args.Height)
+//                    let DepthColor = Array.create (depthPixelData.Length) (new Color(255,255,255))
+//
+//                    for n = 0 to depthPixelData.Length-1 do
+//                        
+//                        let distance = (int depthPixelData.[n] >>> DepthImageFrame.PlayerIndexBitmaskWidth ) //put together bit data as depth
+//                        let pI = (int depthPixelData.[n] &&& DepthImageFrame.PlayerIndexBitmask) // gets the player index
+//                        liveDepthData.[n] <- if pI > 0 then distance else 0
+//                        let intensity = (if pI > 0 then (255-(255 * Math.Max(int(distance-minDist),0)/distOffset)) else 0) //convert distance into a gray level value between 0 and 255 taking into account min and max distances of the kinect.
+//                        let colour = new Color(intensity, intensity, intensity)
+//                        DepthColor.[n] <- colour
+//                    img.SetData(DepthColor)
+//                    liveDepthView <- img
 
             override this.Draw gameTime=
                 spriteBatch.Begin()
                 if liveDepthView <> null then 
                     spriteBatch.Draw(liveDepthView, new Vector2(0.0f, 0.0f), Color.White)
                 spriteBatch.End()
-         
-            member this.LiveDepthData
-                with get() = liveDepthData   
-                            
+//         
+//            member this.LiveDepthData
+//                with get() = liveDepthData   
+//                            
             member this.CaptureBody =
                 let body = new BodyData.Body()
                 let skeletonFrame = nui.SkeletonStream.OpenNextFrame 100
@@ -136,12 +136,14 @@
                     //let n = (y * pImg.Width + x) * 2
                     let distance = (int depthPixelData.[n] >>> DepthImageFrame.PlayerIndexBitmaskWidth ) //put together bit data as depth
                     let pI = int (int depthPixelData.[n] &&& DepthImageFrame.PlayerIndexBitmask) // gets the player index
+                    
                     liveDepthData.[n] <- if pI > 0 then distance else 0
+                    
                     //change distance to colour
                     let intensity = (if pI > 0 then (255-(255 * Math.Max(int(distance-minDist),0)/distOffset)) else 0) //convert distance into a gray level value between 0 and 255 taking into account min and max distances of the kinect.
                     let colour = new Color(intensity, intensity, intensity)
                     DepthColor.[n] <- colour
-                body.DepthImg <- distancesArray
+                body.DepthImg <- (liveDepthData.Clone()) :?> int[]
                 body
 
         exception NoUserTracked
@@ -297,7 +299,6 @@
                     let rightHandAnimationFrame = int (Math.Min((Math.Round((rightClickTime * (10.0/CLICKTIME)), 0)), 9.0))
                     let leftHandAnimationFrame = int (Math.Min((Math.Round((leftClickTime * (10.0/CLICKTIME)), 0)), 9.0))
                     
-                    System.Diagnostics.Debug.WriteLine("aniFrame:" + rightHandAnimationFrame.ToString())
                     spriteBatch.Begin()
                     spriteBatch.Draw(rightHandSprite, new Rectangle(int rightHand.X, int rightHand.Y, 70, 81), Nullable<_> (new Rectangle (rightHandAnimationFrame*70,0, 70,81)), Color.White, 0.0f, new Vector2(30.0f, 18.0f), SpriteEffects.None, 0.0f) //draw right hand cursor
                     spriteBatch.Draw(rightHandSprite, new Rectangle(int leftHand.X, int leftHand.Y, 70, 81), Nullable<_> (new Rectangle (leftHandAnimationFrame*70,0, 70,81)), Color.White, 0.0f, new Vector2(30.0f, 18.0f), SpriteEffects.FlipHorizontally, 0.0f) //draw right hand cursor

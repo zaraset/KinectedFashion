@@ -68,3 +68,9 @@ C:\Users\Ewen\Documents\Visual Studio 2010\Projects\KinectPointsOfInterest\Kinec
 C:\Users\Ewen\Documents\Visual Studio 2010\Projects\KinectPointsOfInterest\KinectPointsOfInterest\GameXna\bin\Debug\XnaGameContent\UI\NotFullScreenButton100x100.xnb
 C:\Users\Ewen\Documents\Visual Studio 2010\Projects\KinectPointsOfInterest\KinectPointsOfInterest\GameXna\bin\Debug\XnaGameContent\VisualisationModels\manrigged.xnb
 C:\Users\Ewen\Documents\Visual Studio 2010\Projects\KinectPointsOfInterest\KinectPointsOfInterest\GameXna\bin\Debug\XnaGameContent\FBX\D8823B45\manrigged.fbm\texture_0.xnb
+C:\Users\Ewen\Documents\Visual Studio 2010\Projects\KinectPointsOfInterest\KinectPointsOfInterest\GameXna\bin\Debug\XnaGameContent\InstructionsAudio\instruction_backPose.xnb
+C:\Users\Ewen\Documents\Visual Studio 2010\Projects\KinectPointsOfInterest\KinectPointsOfInterest\GameXna\bin\Debug\XnaGameContent\InstructionsAudio\instruction_done.xnb
+C:\Users\Ewen\Documents\Visual Studio 2010\Projects\KinectPointsOfInterest\KinectPointsOfInterest\GameXna\bin\Debug\XnaGameContent\InstructionsAudio\instruction_measuring1.xnb
+C:\Users\Ewen\Documents\Visual Studio 2010\Projects\KinectPointsOfInterest\KinectPointsOfInterest\GameXna\bin\Debug\XnaGameContent\InstructionsAudio\instruction_measuring2.xnb
+C:\Users\Ewen\Documents\Visual Studio 2010\Projects\KinectPointsOfInterest\KinectPointsOfInterest\GameXna\bin\Debug\XnaGameContent\InstructionsAudio\instruction_sidePose.xnb
+C:\Users\Ewen\Documents\Visual Studio 2010\Projects\KinectPointsOfInterest\KinectPointsOfInterest\GameXna\bin\Debug\XnaGameContent\InstructionsAudio\instruction_start.xnb

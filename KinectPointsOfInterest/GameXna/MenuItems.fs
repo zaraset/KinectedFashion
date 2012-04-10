@@ -218,7 +218,7 @@ open Kinect
                 base.Update(gameTime)
 
         [<AllowNullLiteral>] //allow null as a proper value
-        type TextBox(game, passwordBox, textureName, shadowTextureName, pos:Vector2, kinect:KinectCursor)=
+        type TextBox(game, passwordBox, textureName, shadowTextureName, pos:Vector2, kinect:KinectCursor) as this=
             inherit Button(game, textureName, shadowTextureName, pos, kinect)
             
             let createdTime = System.DateTime.Now.ToString()
@@ -245,7 +245,13 @@ open Kinect
                 for i = 1 to txt.Length do
                     mask <- mask + "*"
                 mask
-            
+            do KinectHelperMethods.KeyGrabber.add_InboundCharEvent (fun x -> 
+                                                                            if selected then 
+                                                                                if x <> '\b' then //not the backspace key
+                                                                                    this.AddChar (x.ToString())
+                                                                                else if x <> '\n' then //is the backspace key
+                                                                                    this.Backspace
+                                                                                )
             member this.CreatedTime 
                 with get() = createdTime
 
@@ -263,15 +269,9 @@ open Kinect
                 if text.Length < MAXCHARS then
                     (text <- text.Substring(0,carrotPosition) + char + text.Substring(carrotPosition, text.Length - carrotPosition))
                     carrotPosition <- carrotPosition + 1
-
+            
             override this.Initialize()=
-                KinectHelperMethods.KeyGrabber.add_InboundCharEvent (fun x -> 
-                                                                            if selected then 
-                                                                                if x <> '\b' then //not the backspace key
-                                                                                    this.AddChar (x.ToString())
-                                                                                else if x <> '\n' then //is the backspace key
-                                                                                    this.Backspace
-                                                                                )
+                
                 base.Initialize()
 
             override this.LoadContent()=
@@ -467,10 +467,25 @@ open Kinect
 
             let mutable spriteBatch = null
             let mutable sprite:Texture2D = null
-
             override this.LoadContent()=
                 spriteBatch <- new SpriteBatch(game.GraphicsDevice)
                 sprite <- game.Content.Load<Texture2D>(spriteName)
+                base.LoadContent()
+                
+            override this.Draw(gameTime)=
+                spriteBatch.Begin()
+                spriteBatch.Draw(sprite, pos, Color.White)
+                spriteBatch.End()
+                base.Draw(gameTime)
+        [<AllowNullLiteral>] //allow null as a proper value
+        type ImageTexture(game:Game, spriteName:Texture2D, pos:Vector2)=
+            inherit DrawableGameComponent(game)
+
+            let mutable spriteBatch = null
+            let mutable sprite:Texture2D = null
+            override this.LoadContent()=
+                spriteBatch <- new SpriteBatch(game.GraphicsDevice)
+                sprite <- spriteName
                 base.LoadContent()
                 
             override this.Draw(gameTime)=

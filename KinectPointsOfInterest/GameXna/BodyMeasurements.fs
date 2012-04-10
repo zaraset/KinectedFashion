@@ -101,8 +101,8 @@ open System.IO
                          let n = y * DEPTH_WIDTH + x
                          avg.[n] <- avg.[n] + b.DepthImg.[n]
             avg <- avg |> Array.map(fun a -> (a / bodies.Length)) //average each pixel by dividing by the number of samples taken
-            avg <- removeSinglePointOutliers avg
-            avg <- stdDeviation avg
+            //avg <- removeSinglePointOutliers avg
+            //avg <- stdDeviation avg
             
             //avg <- movingAvg avg 1
             
@@ -139,7 +139,10 @@ open System.IO
 
         //pixel resolution formula, obtained empirically
         let horizontalPixelResolution depth =
-            374.0 / 80096.0 * Math.Pow(depth, -1.0)
+            374.0 / (80096.0 * Math.Pow(depth, -0.953))
+
+        let verticalPixelResolution depth =
+            374.0 / (98577.0 * Math.Pow(depth, -0.9745))
         
         let measureSurfaceDistance (points:int[]) =
             
@@ -192,7 +195,7 @@ open System.IO
                     x <- x + 1
                 y <- y + 1
             topOfHead <- TOH.Y
-            //TOH
+            TOH.Y
 
         member this.GetBottomOfFeet =
             let frontBody = avgBody frontBodys
@@ -211,7 +214,7 @@ open System.IO
                     x <- x + 1
                 y <- y + 1
             bottomOfFeet <- BOF.Y
-            //BOF
+            BOF.Y
 
         member this.GetHipsOld =
             let backBody = avgBody backBodys
@@ -252,6 +255,7 @@ open System.IO
                     h <- y
                 y <- y + 1
             hips <-  float32 h
+            h
 
         member this.GetChest =
             let frontBody = avgBody frontBodys
@@ -277,6 +281,7 @@ open System.IO
         member this.GetWaist=
             let w = -((bottomOfFeet - topOfHead) / float32 phi) + topOfHead + (bottomOfFeet - topOfHead)
             waist <- w
+            w
 
         member this.GetShoulders=
             shoulders <- (avgBody frontBodys).GetJoint("centerShoulder").Y
@@ -298,7 +303,8 @@ open System.IO
         //Ceiling to waist measurement
         
 
-        member this.MeasureWaist=
+        member this.MeasureWaist waist=
+            let mutable waistMeasurement =0.0
             let frontBody = avgBody frontBodys
             let backBody = avgBody backBodys
             let waistStart = int waist * DEPTH_WIDTH
@@ -307,7 +313,26 @@ open System.IO
             let backRow = backBody.DepthImg.[waistStart..waistEnd]
             waistMeasurement <- measureSurfaceDistance frontRow
             waistMeasurement <- waistMeasurement + (measureSurfaceDistance backRow)
+            waistMeasurement
 
+        member this.MeasureHips hips=
+            let mutable hipsMeasurement =0.0
+            let frontBody = avgBody frontBodys
+            let backBody = avgBody backBodys
+            let hipsStart = int hips * DEPTH_WIDTH
+            let hipsEnd = hipsStart + DEPTH_WIDTH
+            let frontRow = frontBody.DepthImg.[hipsStart..hipsEnd]
+            let backRow = backBody.DepthImg.[hipsStart..hipsEnd]
+            hipsMeasurement <- measureSurfaceDistance frontRow
+            hipsMeasurement <- hipsMeasurement + (measureSurfaceDistance backRow)
+            hipsMeasurement
+
+        member this.MeasureHeight topOfHead bottomOfFeet=
+            let body = avgBody frontBodys
+            let depth = float(body.GetJoint("head").Z)*1000.0
+            let res = verticalPixelResolution depth 
+            let height = float(bottomOfFeet - topOfHead) * res
+            height
         //top of screen to shoulders
         member this.MeasureToShoulders=
             shoulders <- frontBodys.[0].GetJoint("centerShoulder").Y
@@ -325,49 +350,70 @@ open System.IO
             dot <- game.Content.Load<Texture2D>("dot")
             measurementFont <- game.Content.Load<SpriteFont>("Font")
 
-
+        member this.GetMeasurements =
+//            let waistMeasures = Array.zeroCreate frontBodys.Length
+//            let hipsMeasures = Array.zeroCreate frontBodys.Length
+//            let heightMeasures = Array.zeroCreate frontBodys.Length
+            let topOfHead = this.GetTopOfHead 
+            let bottomOfFeet = this.GetBottomOfFeet 
+            let waist = this.GetWaist
+            //let this.MeasureToShoulders
+            //this.MeasureToKnees
+            let hips = this.GetHips 
+            //frontBodyView <- this.ConvertDepthToTexture (frontBodys.[0])
+            //sideBodyView <- this.ConvertDepthToTexture (leftSideBodys.[0])
+                    
+            let waistMeasure = this.MeasureWaist waist
+            let hipsMeasure = this.MeasureHips hips
+            let heightMeasure = this.MeasureHeight topOfHead bottomOfFeet
+            //let waistRow = (avgBody frontBodys).DepthImg.[(int waist * DEPTH_WIDTH)..((int waist * DEPTH_WIDTH)+DEPTH_WIDTH)] //kinect.LiveDepthData.[(int waist * DEPTH_WIDTH)..((int waist * DEPTH_WIDTH)+DEPTH_WIDTH)]
+            //frontMeasurement <- measureSurfaceDistance frontBodys.[i]
+            (waistMeasure, hipsMeasure, heightMeasure)
         
-        override this.Update(gameTime)=
-            if not pointsFound then
-                this.GetTopOfHead
-                this.GetBottomOfFeet
-                this.GetWaist
-                this.MeasureToShoulders
-                this.MeasureToKnees
-                this.GetHips
-                frontBodyView <- this.ConvertDepthToTexture (avgBody frontBodys)
-                sideBodyView <- this.ConvertDepthToTexture (avgBody leftSideBodys)
-                this.MeasureWaist
-                pointsFound <- true
-                let waistRow = (avgBody frontBodys).DepthImg.[(int waist * DEPTH_WIDTH)..((int waist * DEPTH_WIDTH)+DEPTH_WIDTH)] //kinect.LiveDepthData.[(int waist * DEPTH_WIDTH)..((int waist * 320)+320)]
-                frontMeasurement <- measureSurfaceDistance waistRow
-            if waist > 0.0f && pointsFound then
-                let waistRow = kinect.LiveDepthData.[(int waist * DEPTH_WIDTH)..((int waist * DEPTH_WIDTH)+DEPTH_WIDTH)]
-//                let flatFrontArray = Array.map (fun a ->
-//                                                match a with
-//                                                | 0 -> None
-//                                                | _ -> Some a) waistRow
+//        override this.Update(gameTime)=
+//            if not pointsFound then
+//                this.GetTopOfHead
+//                this.GetBottomOfFeet
+//                this.GetWaist
+//                this.MeasureToShoulders
+//                this.MeasureToKnees
+//                this.GetHips
+//                frontBodyView <- this.ConvertDepthToTexture (avgBody frontBodys)
+//                sideBodyView <- this.ConvertDepthToTexture (avgBody leftSideBodys)
+//                this.MeasureWaist
+//                pointsFound <- true
+//                let waistRow = (avgBody frontBodys).DepthImg.[(int waist * DEPTH_WIDTH)..((int waist * DEPTH_WIDTH)+DEPTH_WIDTH)] //kinect.LiveDepthData.[(int waist * DEPTH_WIDTH)..((int waist * 320)+320)]
+//                frontMeasurement <- measureSurfaceDistance waistRow
+//            if waist > 0.0f && pointsFound then
+//                let waistRow = kinect.LiveDepthData.[(int waist * DEPTH_WIDTH)..((int waist * DEPTH_WIDTH)+DEPTH_WIDTH)]
+////                let flatFrontArray = Array.map (fun a ->
+////                                                match a with
+////                                                | 0 -> None
+////                                                | _ -> Some a) waistRow
+////                
+////                flatFront <- flatFrontArray.Length
+//                let frontMeasurement2 = measureSurfaceDistance waistRow
+//                //try
+//                  //  strm.Write (frontMeasurement.ToString() + "\r\n")
+//                //with 
+//                //    | :? System.ObjectDisposedException -> System.Diagnostics.Debug.Write("finished")
+//                //measurementCount <- measurementCount + 1
 //                
-//                flatFront <- flatFrontArray.Length
-                let frontMeasurement2 = measureSurfaceDistance waistRow
-                //try
-                  //  strm.Write (frontMeasurement.ToString() + "\r\n")
-                //with 
-                //    | :? System.ObjectDisposedException -> System.Diagnostics.Debug.Write("finished")
-                //measurementCount <- measurementCount + 1
-                
-                //if measurementCount = 1000 then
-                //    strm.Close()
+//                //if measurementCount = 1000 then
+//                //    strm.Close()
+//
+//                if frontMeasurement2 > waistMax then
+//                    waistMax <- frontMeasurement
+//                if frontMeasurement2 < waistMin then
+//                    waistMin <- frontMeasurement
+//                
+//                if Array.sum waistRow > 0 then
+//                    let range = Array.max waistRow - Array.min(Array.filter (fun elem -> if elem = 0 then false else true) waistRow)
+//                    for i = 0 to 319 do  
+//                        waistContour.[i] <- waistRow.[i] - (Array.max waistRow - range)
 
-                if frontMeasurement2 > waistMax then
-                    waistMax <- frontMeasurement
-                if frontMeasurement2 < waistMin then
-                    waistMin <- frontMeasurement
-                
-                if Array.sum waistRow > 0 then
-                    let range = Array.max waistRow - Array.min(Array.filter (fun elem -> if elem = 0 then false else true) waistRow)
-                    for i = 0 to 319 do  
-                        waistContour.[i] <- waistRow.[i] - (Array.max waistRow - range)
+        member this.GetAvgBodyTexture bodies2=
+            this.ConvertDepthToTexture (avgBody bodies2)
 
         member this.ConvertDepthToTexture (b:Body)=
             let img = new Texture2D(game.GraphicsDevice, DEPTH_WIDTH, DEPTH_HEIGHT)
@@ -563,7 +609,8 @@ open System.IO
 
         //pixel resolution formula, obtained empirically
         let horizontalPixelResolution depth =
-            374.0 / 80096.0 * Math.Pow(depth, -0.953)
+            let power = Math.Pow(depth, -0.953)
+            374.0 / (80096.0 * power)
         
         let measureSurfaceDistance (points:int[]) =
             
@@ -624,7 +671,7 @@ open System.IO
                     x <- x + 1
                 y <- y + 1
             topOfHead <- TOH.Y
-            //TOH
+            TOH.Y
 
         member this.GetBottomOfFeet (body:Body)=
             let frontBody = body
@@ -643,7 +690,7 @@ open System.IO
                     x <- x + 1
                 y <- y + 1
             bottomOfFeet <- BOF.Y
-            //BOF
+            BOF.Y
 
         member this.GetHipsOld =
             let backBody = avgBody backBodys
@@ -684,6 +731,7 @@ open System.IO
                     h <- y
                 y <- y + 1
             hips <-  float32 h
+            h
 
         member this.GetChest (body:Body)=
             let frontBody = body
@@ -709,6 +757,7 @@ open System.IO
         member this.GetWaist=
             let w = -((bottomOfFeet - topOfHead) / float32 phi) + topOfHead + (bottomOfFeet - topOfHead)
             waist <- w
+            w
 
         member this.GetShoulders=
             shoulders <- (avgBody frontBodys).GetJoint("centerShoulder").Y
@@ -730,7 +779,7 @@ open System.IO
         //Ceiling to waist measurement
         
 
-        member this.MeasureWaist (body:Body, backBody:Body)=
+        member this.MeasureWaist (body:Body, backBody:Body, waist)=
             let mutable waistMeasurement =0.0
             let frontBody = body
             let backBody = backBody
@@ -742,7 +791,7 @@ open System.IO
             waistMeasurement <- waistMeasurement + (measureSurfaceDistance backRow)
             waistMeasurement
 
-        member this.MeasureHips (body:Body, backBody:Body)=
+        member this.MeasureHips (body:Body, backBody:Body, hips)=
             let mutable hipsMeasurement =0.0
             let hipsStart = int hips * DEPTH_WIDTH
             let hipsEnd = hipsStart + DEPTH_WIDTH
@@ -752,13 +801,11 @@ open System.IO
             hipsMeasurement <- hipsMeasurement + (measureSurfaceDistance backRow)
             hipsMeasurement
 
-        member this.MeasureHeight (body:Body)=
-            let heightStart = int topOfHead * DEPTH_WIDTH + (int (body.GetJoint("head").X))
-            let heightEnd = int bottomOfFeet * DEPTH_WIDTH + (int (body.GetJoint("head").X))
-            let heightRow = Array.zeroCreate (int bottomOfFeet - (int topOfHead))
-            for x = 0 to heightRow.Length - 1 do
-                heightRow.[x] <- body.DepthImg.[heightStart + DEPTH_WIDTH * x]
-            measureFlatDistance heightRow
+        member this.MeasureHeight (body:Body, topOfHead, bottomOfFeet)=
+            let depth = float(body.GetJoint("head").Z)*1000.0
+            let res = horizontalPixelResolution depth 
+            let height = float(bottomOfFeet - topOfHead) * res
+            height
 
         //top of screen to shoulders
         member this.MeasureToShoulders=
@@ -783,18 +830,18 @@ open System.IO
             let hipsMeasures = Array.zeroCreate frontBodys.Length
             let heightMeasures = Array.zeroCreate frontBodys.Length
             for i = 0 to frontBodys.Length-1 do
-                    this.GetTopOfHead frontBodys.[i] 
-                    this.GetBottomOfFeet frontBodys.[i] 
-                    this.GetWaist
-                    this.MeasureToShoulders
-                    this.MeasureToKnees
-                    this.GetHips leftSideBodys.[i]
-                    frontBodyView <- this.ConvertDepthToTexture (frontBodys.[0])
-                    sideBodyView <- this.ConvertDepthToTexture (leftSideBodys.[0])
+                    let topOfHead = this.GetTopOfHead frontBodys.[i] 
+                    let bottomOfFeet = this.GetBottomOfFeet frontBodys.[i] 
+                    let waist = this.GetWaist
+                    //let this.MeasureToShoulders
+                    //this.MeasureToKnees
+                    let hips = this.GetHips leftSideBodys.[i]
+                    //frontBodyView <- this.ConvertDepthToTexture (frontBodys.[0])
+                    //sideBodyView <- this.ConvertDepthToTexture (leftSideBodys.[0])
                     
-                    waistMeasures.[i] <- this.MeasureWaist (frontBodys.[i], backBodys.[i])
-                    hipsMeasures.[i] <- this.MeasureHips (frontBodys.[i], backBodys.[i])
-                    heightMeasures.[i] <- this.MeasureHeight (frontBodys.[i])
+                    waistMeasures.[i] <- this.MeasureWaist (frontBodys.[i], backBodys.[i], waist)
+                    hipsMeasures.[i] <- this.MeasureHips (frontBodys.[i], backBodys.[i], hips)
+                    heightMeasures.[i] <- this.MeasureHeight (frontBodys.[i], topOfHead, bottomOfFeet)
                     //let waistRow = (avgBody frontBodys).DepthImg.[(int waist * DEPTH_WIDTH)..((int waist * DEPTH_WIDTH)+DEPTH_WIDTH)] //kinect.LiveDepthData.[(int waist * DEPTH_WIDTH)..((int waist * DEPTH_WIDTH)+DEPTH_WIDTH)]
                     //frontMeasurement <- measureSurfaceDistance frontBodys.[i]
             (freqCount waistMeasures, freqCount hipsMeasures, freqCount heightMeasures)

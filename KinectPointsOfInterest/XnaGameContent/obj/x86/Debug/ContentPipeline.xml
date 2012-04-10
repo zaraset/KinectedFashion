@@ -461,6 +461,60 @@
       <Time>2012-01-02T17:15:15.4509141+00:00</Time>
     </Item>
     <Item>
+      <Source>InstructionsAudio\instruction_backPose.mp3</Source>
+      <Name>InstructionsAudio\instruction_backPose</Name>
+      <Importer>Mp3Importer</Importer>
+      <Processor>SoundEffectProcessor</Processor>
+      <Options>None</Options>
+      <Output>C:\Users\Ewen\Documents\Visual Studio 2010\Projects\KinectPointsOfInterest\KinectPointsOfInterest\GameXna\bin\Debug\XnaGameContent\InstructionsAudio\instruction_backPose.xnb</Output>
+      <Time>2012-04-07T16:46:59.320821+01:00</Time>
+    </Item>
+    <Item>
+      <Source>InstructionsAudio\instruction_done.mp3</Source>
+      <Name>InstructionsAudio\instruction_done</Name>
+      <Importer>Mp3Importer</Importer>
+      <Processor>SoundEffectProcessor</Processor>
+      <Options>None</Options>
+      <Output>C:\Users\Ewen\Documents\Visual Studio 2010\Projects\KinectPointsOfInterest\KinectPointsOfInterest\GameXna\bin\Debug\XnaGameContent\InstructionsAudio\instruction_done.xnb</Output>
+      <Time>2012-04-07T16:46:59.3228212+01:00</Time>
+    </Item>
+    <Item>
+      <Source>InstructionsAudio\instruction_measuring1.mp3</Source>
+      <Name>InstructionsAudio\instruction_measuring1</Name>
+      <Importer>Mp3Importer</Importer>
+      <Processor>SoundEffectProcessor</Processor>
+      <Options>None</Options>
+      <Output>C:\Users\Ewen\Documents\Visual Studio 2010\Projects\KinectPointsOfInterest\KinectPointsOfInterest\GameXna\bin\Debug\XnaGameContent\InstructionsAudio\instruction_measuring1.xnb</Output>
+      <Time>2012-04-07T16:46:59.424827+01:00</Time>
+    </Item>
+    <Item>
+      <Source>InstructionsAudio\instruction_measuring2.mp3</Source>
+      <Name>InstructionsAudio\instruction_measuring2</Name>
+      <Importer>Mp3Importer</Importer>
+      <Processor>SoundEffectProcessor</Processor>
+      <Options>None</Options>
+      <Output>C:\Users\Ewen\Documents\Visual Studio 2010\Projects\KinectPointsOfInterest\KinectPointsOfInterest\GameXna\bin\Debug\XnaGameContent\InstructionsAudio\instruction_measuring2.xnb</Output>
+      <Time>2012-04-07T16:46:59.4288272+01:00</Time>
+    </Item>
+    <Item>
+      <Source>InstructionsAudio\instruction_sidePose.mp3</Source>
+      <Name>InstructionsAudio\instruction_sidePose</Name>
+      <Importer>Mp3Importer</Importer>
+      <Processor>SoundEffectProcessor</Processor>
+      <Options>None</Options>
+      <Output>C:\Users\Ewen\Documents\Visual Studio 2010\Projects\KinectPointsOfInterest\KinectPointsOfInterest\GameXna\bin\Debug\XnaGameContent\InstructionsAudio\instruction_sidePose.xnb</Output>
+      <Time>2012-04-07T16:46:59.4508285+01:00</Time>
+    </Item>
+    <Item>
+      <Source>InstructionsAudio\instruction_start.mp3</Source>
+      <Name>InstructionsAudio\instruction_start</Name>
+      <Importer>Mp3Importer</Importer>
+      <Processor>SoundEffectProcessor</Processor>
+      <Options>None</Options>
+      <Output>C:\Users\Ewen\Documents\Visual Studio 2010\Projects\KinectPointsOfInterest\KinectPointsOfInterest\GameXna\bin\Debug\XnaGameContent\InstructionsAudio\instruction_start.xnb</Output>
+      <Time>2012-04-07T16:46:59.4538286+01:00</Time>
+    </Item>
+    <Item>
       <Source>Font.spritefont</Source>
       <Name>Font</Name>
       <Importer>FontDescriptionImporter</Importer>
@@ -515,7 +569,7 @@
       <Time>2012-04-05T15:05:22.4657287+01:00</Time>
       <Dependency>
         <Key>obj\x86\Debug\VisualisationModels\manrigged_0.xml</Key>
-        <Value>2012-04-06T16:10:41.3045854+01:00</Value>
+        <Value>2012-04-09T15:13:04.0440067+01:00</Value>
       </Dependency>
       <Request>C:\Users\Ewen\Documents\Visual Studio 2010\Projects\KinectPointsOfInterest\KinectPointsOfInterest\GameXna\bin\Debug\XnaGameContent\FBX\D8823B45\manrigged.fbm\texture_0.xnb</Request>
     </Item>
@@ -540,7 +594,7 @@
       </Parameters>
       <Options>None</Options>
       <Output>C:\Users\Ewen\Documents\Visual Studio 2010\Projects\KinectPointsOfInterest\KinectPointsOfInterest\GameXna\bin\Debug\XnaGameContent\FBX\D8823B45\manrigged.fbm\texture_0.xnb</Output>
-      <Time>2012-04-06T16:10:39.9665088+01:00</Time>
+      <Time>2012-04-09T15:13:02.5999241+01:00</Time>
     </Item>
     <BuildSuccessful>true</BuildSuccessful>
     <Settings>
@@ -556,7 +610,7 @@
     <Assemblies>
       <Assembly>
         <Key>C:\Users\Ewen\Documents\Visual Studio 2010\Projects\KinectPointsOfInterest\SkinnedModelProcessor\bin\x86\Debug\SkinnedModelProcessor.dll</Key>
-        <Value>2012-04-06T16:10:34.9402214+01:00</Value>
+        <Value>2012-04-09T15:12:55.5595214+01:00</Value>
       </Assembly>
       <Assembly>
         <Key>C:\Program Files (x86)\Microsoft XNA\XNA Game Studio\v4.0\References\Windows\x86\Microsoft.Xna.Framework.Content.Pipeline.XImporter.dll</Key>

@@ -69,4 +69,9 @@
             else
                 false
 
+        member this.Clone =
+            let newBody = new Body(head, shoulderL, shoulderR, shoulderC, hipL, hipR, hipC, footL, footR, kneeL, kneeR)
+            newBody.DepthImg <- depthImage
+            newBody
+
     

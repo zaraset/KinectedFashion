@@ -11,6 +11,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 #endregion
 
 namespace SkinnedModel
@@ -42,6 +43,8 @@ namespace SkinnedModel
         // Backlink to the bind pose and skeleton hierarchy data.
         SkinningData skinningDataValue;
 
+        Model currentModel;
+
 
         #endregion
 
@@ -49,8 +52,9 @@ namespace SkinnedModel
         /// <summary>
         /// Constructs a new animation player.
         /// </summary>
-        public AnimationPlayer(SkinningData skinningData)
+        public AnimationPlayer(SkinningData skinningData, Model theModel)
         {
+            currentModel = theModel;
             if (skinningData == null)
                 throw new ArgumentNullException("skinningData");
 
@@ -118,9 +122,25 @@ namespace SkinnedModel
         /// </summary>
         public void UpdateBoneTransforms(int frame)
         {
+            
             foreach(Keyframe k in keyframesList[frame])
             {
-                boneTransforms[k.Bone] = k.Transform;
+                ModelBoneCollection lowerTummyBones = currentModel.Bones["Pelvis"].Children;
+                ModelBoneCollection upperTummyBones = currentModel.Bones["Spine"].Children;
+                List<int> tummyBoneIndexs = new List<int>();
+                foreach (ModelBone t in lowerTummyBones)
+                {
+                    tummyBoneIndexs.Add(t.Index);
+                }
+                foreach (ModelBone t in upperTummyBones)
+                {
+                    if (t.Name != "Pelvis" && t.Name != "LShoulder" && t.Name != "RShoulder" && t.Name != "LChest" && t.Name != "RChest")
+                        tummyBoneIndexs.Add(t.Index);
+                }
+                if (tummyBoneIndexs.Contains(k.Bone))
+                {
+                    boneTransforms[k.Bone] = k.Transform;
+                }
             }
 
         }

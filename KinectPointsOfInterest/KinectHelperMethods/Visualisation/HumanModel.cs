@@ -68,7 +68,7 @@ namespace Visualisation
                     ("This model does not contain a SkinningData tag.");
 
             // Create an animation player, and start decoding an animation clip.
-            animationPlayer = new AnimationPlayer(skinningData);
+            animationPlayer = new AnimationPlayer(skinningData, currentModel);
 
             AnimationClip clip = skinningData.AnimationClips["Take 001"];
 
@@ -115,7 +115,7 @@ namespace Visualisation
             //device.Clear(Color.CornflowerBlue);
 
             Matrix[] bones = animationPlayer.GetSkinTransforms();
-
+            //Matrix[] tummyBones = currentModel.Bones["tummyLowerBone"].Index
             // Compute camera matrices.
             Matrix view = Matrix.CreateTranslation(20, 0, -20) * 
                           Matrix.CreateRotationY(MathHelper.ToRadians(cameraRotation)) *

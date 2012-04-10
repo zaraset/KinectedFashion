@@ -17,16 +17,36 @@ open System
                 with get() = name
             member this.ID
                 with get() = (int) id
-        [<AllowNullLiteral>] //allow null as a proper value
-        type Customer(name, email, height, waist, hips, chest)=
-            member this.Height
+        
+        type Customer()=
+            static let mutable height = 0
+            static let mutable chest = 0
+            static let mutable hips = 0
+            static let mutable waist = 0
+
+            static let mutable name = ""
+            static let mutable email = ""
+            
+            static member Height
                 with get() = height
-            member this.Waist
+                and set(h) = height <- h
+            static member Waist
                 with get() = waist
-            member this.Hips
+                and set(h) = waist <- h
+            static member Hips
                 with get() = hips
-            member this.Chest
+                and set(h) = hips <- h
+            static member Chest
                 with get() = chest
+                and set(h) = chest <- h
+            static member Name
+                with get() = name
+                and set(h) = name <- h
+            static member Email
+                with get() = email
+                and set(h) = email <- h
+            static member IsACustomer= //checks if the cusotmer object has had values set.
+                not (name.Equals "")
 
     module Database=
 
@@ -37,7 +57,6 @@ open System
             
             member this.getCustomer email password=
                 try
-                    let mutable customer = null
                     connection.Open()
                     //get customer details
                     let transactionCustomer = connection.BeginTransaction()
@@ -46,16 +65,21 @@ open System
                     cmd.CommandTimeout <- 20
                     let rdr = cmd.ExecuteReader()
                     while (rdr.Read()) do
-                        customer <- new Store.Customer(rdr.[0], rdr.[1], rdr.[2], rdr.[3], rdr.[4], rdr.[5])
+                        Store.Customer.Name <- string rdr.[0]
+                        Store.Customer.Email <- string rdr.[1]
+                        Store.Customer.Height <- Int32.Parse ((rdr.[2]).ToString())
+                        Store.Customer.Waist <- Int32.Parse ((rdr.[3]).ToString())
+                        Store.Customer.Hips <- Int32.Parse ((rdr.[4]).ToString())
+                        Store.Customer.Chest <-Int32.Parse ((rdr.[5]).ToString())
                         Diagnostics.Debug.WriteLine(rdr.[0].ToString() + rdr.[1].ToString() + rdr.[2].ToString() + rdr.[3].ToString())
                     rdr.Close()
                     transactionCustomer.Dispose()
-                    customer
+                    Store.Customer.IsACustomer
                 with 
                     | :? MySqlException as ex -> (MessageBox.Show("Error connecting to database.\n\r" + ex.Message ) |> ignore
-                                                  null)
+                                                  false)
                     | ex-> (MessageBox.Show(ex.Message ) |> ignore
-                            null)
+                            false)
 
             member this.getGarments customer whereClause=
                 try
