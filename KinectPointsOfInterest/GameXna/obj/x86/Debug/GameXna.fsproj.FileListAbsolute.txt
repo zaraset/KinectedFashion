@@ -20,7 +20,6 @@ C:\Users\Ewen\Documents\Visual Studio 2010\Projects\KinectPointsOfInterest\Kinec
 C:\Users\Ewen\Documents\Visual Studio 2010\Projects\KinectPointsOfInterest\KinectPointsOfInterest\GameXna\bin\Debug\mysql.data.dll
 C:\Users\Ewen\Documents\Visual Studio 2010\Projects\KinectPointsOfInterest\KinectPointsOfInterest\GameXna\bin\Debug\XnaGameContent\textbox.xnb
 C:\Users\Ewen\Documents\Visual Studio 2010\Projects\KinectPointsOfInterest\KinectPointsOfInterest\GameXna\bin\Debug\XnaGameContent\textBoxFont.xnb
-C:\Users\Ewen\Documents\Visual Studio 2010\Projects\KinectPointsOfInterest\KinectPointsOfInterest\GameXna\bin\Debug\EventControllers.dll
 C:\Users\Ewen\Documents\Visual Studio 2010\Projects\KinectPointsOfInterest\KinectPointsOfInterest\GameXna\bin\Debug\XnaGameContent\nextButton.xnb
 C:\Users\Ewen\Documents\Visual Studio 2010\Projects\KinectPointsOfInterest\KinectPointsOfInterest\GameXna\bin\Debug\XnaGameContent\femaleButton.xnb
 C:\Users\Ewen\Documents\Visual Studio 2010\Projects\KinectPointsOfInterest\KinectPointsOfInterest\GameXna\bin\Debug\XnaGameContent\maleButton.xnb

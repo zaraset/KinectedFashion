@@ -3,15 +3,12 @@
     open Microsoft.Xna.Framework.Audio
     open Microsoft.Xna.Framework.Graphics
     open Microsoft.Kinect
-
-    //open KinectHelperMethods
-
     open System
     open System.Windows.Forms
     
     module Kinect=
         //used to check if values are close to each other.
-        //the two var1 parameters are the values being compared
+        //the two var parameters are the values being compared
         //disparity sets the strictness of the function
         let fuzzyEquals var1 var2 disparity=
             let mutable returnval = false
@@ -65,7 +62,7 @@
                 with
                     | :? System.InvalidOperationException -> System.Diagnostics.Debug.Write("Kinect not connected!")
                     | :? System.ArgumentOutOfRangeException -> System.Diagnostics.Debug.Write("Kinect not connected!")
-                spriteBatch <- new SpriteBatch(game.GraphicsDevice)
+                //spriteBatch <- new SpriteBatch(game.GraphicsDevice)
             
 //            override this.LoadContent()=
 //                liveDepthView <- new Texture2D(game.GraphicsDevice, 320, 240)
@@ -90,11 +87,11 @@
 //                    img.SetData(DepthColor)
 //                    liveDepthView <- img
 
-            override this.Draw gameTime=
-                spriteBatch.Begin()
-                if liveDepthView <> null then 
-                    spriteBatch.Draw(liveDepthView, new Vector2(0.0f, 0.0f), Color.White)
-                spriteBatch.End()
+//            override this.Draw gameTime=
+//                spriteBatch.Begin()
+//                if liveDepthView <> null then 
+//                    spriteBatch.Draw(liveDepthView, new Vector2(0.0f, 0.0f), Color.White)
+//                spriteBatch.End()
 //         
 //            member this.LiveDepthData
 //                with get() = liveDepthData   
@@ -118,7 +115,6 @@
                         let rightFoot = processJoint(skeleton.Joints.[JointType.FootRight], nui)
                         let leftKnee = processJoint(skeleton.Joints.[JointType.KneeLeft], nui)
                         let rightKnee = processJoint(skeleton.Joints.[JointType.KneeRight], nui)
-                        
                         body.SetSkeleton(head, leftShoulder, rightShoulder, centerShoulder, leftHip, rightHip, centerHip, leftFoot,rightFoot, leftKnee, rightKnee)
                 skeletonFrame.Dispose()
 
@@ -129,9 +125,8 @@
                 let depthPixelData = Array.create depthFrame.PixelDataLength (int16 0)
                 depthFrame.CopyPixelDataTo depthPixelData
                 let img = new Texture2D(game.GraphicsDevice, depthFrame.Width, depthFrame.Height)
-                let DepthColor = Array.create (depthPixelData.Length) (new Color(255,255,255))
+                //let DepthColor = Array.create (depthPixelData.Length) (new Color(255,255,255))
 
-                //for y = 0 to pImg.Height-1 do
                 for n = 0 to depthPixelData.Length-1 do
                     //let n = (y * pImg.Width + x) * 2
                     let distance = (int depthPixelData.[n] >>> DepthImageFrame.PlayerIndexBitmaskWidth ) //put together bit data as depth
@@ -140,9 +135,9 @@
                     liveDepthData.[n] <- if pI > 0 then distance else 0
                     
                     //change distance to colour
-                    let intensity = (if pI > 0 then (255-(255 * Math.Max(int(distance-minDist),0)/distOffset)) else 0) //convert distance into a gray level value between 0 and 255 taking into account min and max distances of the kinect.
-                    let colour = new Color(intensity, intensity, intensity)
-                    DepthColor.[n] <- colour
+                    //let intensity = (if pI > 0 then (255-(255 * Math.Max(int(distance-minDist),0)/distOffset)) else 0) //convert distance into a gray level value between 0 and 255 taking into account min and max distances of the kinect.
+                    //let colour = new Color(intensity, intensity, intensity)
+                    //DepthColor.[n] <- colour
                 body.DepthImg <- (liveDepthData.Clone()) :?> int[]
                 body
 

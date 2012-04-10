@@ -569,7 +569,7 @@
       <Time>2012-04-05T15:05:22.4657287+01:00</Time>
       <Dependency>
         <Key>obj\x86\Debug\VisualisationModels\manrigged_0.xml</Key>
-        <Value>2012-04-09T15:13:04.0440067+01:00</Value>
+        <Value>2012-04-10T16:25:57.5919141+01:00</Value>
       </Dependency>
       <Request>C:\Users\Ewen\Documents\Visual Studio 2010\Projects\KinectPointsOfInterest\KinectPointsOfInterest\GameXna\bin\Debug\XnaGameContent\FBX\D8823B45\manrigged.fbm\texture_0.xnb</Request>
     </Item>
@@ -610,7 +610,7 @@
     <Assemblies>
       <Assembly>
         <Key>C:\Users\Ewen\Documents\Visual Studio 2010\Projects\KinectPointsOfInterest\SkinnedModelProcessor\bin\x86\Debug\SkinnedModelProcessor.dll</Key>
-        <Value>2012-04-09T15:12:55.5595214+01:00</Value>
+        <Value>2012-04-10T16:25:48.6764042+01:00</Value>
       </Assembly>
       <Assembly>
         <Key>C:\Program Files (x86)\Microsoft XNA\XNA Game Studio\v4.0\References\Windows\x86\Microsoft.Xna.Framework.Content.Pipeline.XImporter.dll</Key>
